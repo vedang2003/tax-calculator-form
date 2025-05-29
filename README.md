@@ -1,8 +1,8 @@
-# 🧮 Tax Calculator Lead Generation App
+#  Tax Calculator Lead Generation App
 
 A Flask-based web application that collects user information and automatically sends a tax calculator spreadsheet via email while storing leads in Google Sheets.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 tax-calculator-app/
@@ -24,7 +24,7 @@ tax-calculator-app/
     └── index.html       # Main HTML template
 ```
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### 1. Clone the Repository
 
@@ -74,10 +74,9 @@ GOOGLE_SHEETS_ID=your-google-sheets-id
 
 Place your Excel tax calculator file as `tax_calculator.xlsx` in the project root.
 
-## 🚀 Running the Application
+## Running the Application
 
-### Development Mode
-
+To run the application locally, execute the following command:
 ```bash
 python3 app.py
 ```
