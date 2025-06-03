@@ -12,10 +12,10 @@
     <meta property="og:type" content="website" />
     
     <title>Free Tax Calculator</title>
-    <link rel="stylesheet" href="/static/css/styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 
     <!-- Favicon -->
-    <link rel="icon" href="/static/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon" />
   </head>
   <body>
     <div class="container">
@@ -28,6 +28,7 @@
       </div>
 
       <form id="taxForm" class="form-container">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
         <div class="form-group">
           <label for="fullName">Full Name</label>
           <input
@@ -115,6 +116,6 @@
       </div>
     </div>
 
-    <script src="/static/js/script.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   </body>
 </html>

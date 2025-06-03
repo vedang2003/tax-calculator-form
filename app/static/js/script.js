@@ -79,11 +79,9 @@ class TaxCalculatorForm {
       this.isSubmitting = false;
       return;
     }
-
+    const formData = new FormData(this.form);
     this.showLoading();
-
     try {
-      const formData = new FormData(this.form);
       const response = await this.submitForm(formData);
 
       const result = await response.json();
@@ -103,10 +101,26 @@ class TaxCalculatorForm {
   }
 
   async submitForm(formData) {
-    return fetch("/submit", {
-      method: "POST",
-      body: formData,
-    });
+    // Debug: Log form data before sending
+    console.log("Sending form data:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    try {
+      const response = await fetch("/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
+      return response;
+    } catch (error) {
+      console.error("Network error:", error);
+      throw error;
+    }
   }
 
   validateForm() {
@@ -120,12 +134,12 @@ class TaxCalculatorForm {
         isValid = false;
       }
     });
-    
-    if(!isValid){
-        const firstError = this.form.querySelector(".field-error");
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+
+    if (!isValid) {
+      const firstError = this.form.querySelector(".field-error");
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
     return isValid;
   }
@@ -161,7 +175,7 @@ class TaxCalculatorForm {
     return emailRegex.test(email);
   }
 
-  isValidPhone(phone){
+  isValidPhone(phone) {
     const phoneRegex = /^(\+91-|\+91|0)?\d{10}$/;
     return phoneRegex.test(phone);
   }
@@ -233,7 +247,7 @@ class TaxCalculatorForm {
     // Reset field styles
     const fields = this.form.querySelectorAll("input, select");
     fields.forEach((field) => {
-        field.classList.remove("error");
+      field.classList.remove("error");
     });
 
     this.hasValidationErrors = false;
@@ -255,94 +269,94 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // District data configuration
 const DISTRICT_DATA = {
-    "uttar-pradesh": [
-      "Agra",
-      "Aligarh",
-      "Amroha",
-      "Auraiya",
-      "Ayodhya",
-      "Azamgarh",
-      "Baghpat",
-      "Bahraich",
-      "Ballia",
-      "Balrampur",
-      "Banda",
-      "Barabanki",
-      "Bareilly",
-      "Basti",
-      "Bhadohi",
-      "Bijnor",
-      "Budaun",
-      "Bulandshahr",
-      "Chandauli",
-      "Chitrakoot",
-      "Deoria",
-      "Etah",
-      "Etawah",
-      "Farrukhabad",
-      "Fatehpur",
-      "Firozabad",
-      "Gautam Buddha Nagar",
-      "Ghaziabad",
-      "Ghazipur",
-      "Gonda",
-      "Gorakhpur",
-      "Hamirpur",
-      "Hapur",
-      "Hardoi",
-      "Hathras",
-      "Jalaun",
-      "Jaunpur",
-      "Jhansi",
-      "Kannauj",
-      "Kanpur Dehat",
-      "Kanpur Nagar",
-      "Kasganj",
-      "Kaushambi",
-      "Kushinagar",
-      "Lakhimpur Kheri",
-      "Lalitpur",
-      "Lucknow",
-      "Maharajganj",
-      "Mahoba",
-      "Mainpuri",
-      "Mathura",
-      "Mau",
-      "Meerut",
-      "Mirzapur",
-      "Moradabad",
-      "Muzaffarnagar",
-      "Pilibhit",
-      "Pratapgarh",
-      "Prayagraj",
-      "Raebareli",
-      "Rampur",
-      "Saharanpur",
-      "Sambhal",
-      "Sant Kabir Nagar",
-      "Shahjahanpur",
-      "Shamli",
-      "Shravasti",
-      "Siddharthnagar",
-      "Sitapur",
-      "Sonbhadra",
-      "Sultanpur",
-      "Unnao",
-      "Varanasi",
-    ],
-    uttarakhand: [
-      "Almora",
-      "Bageshwar",
-      "Chamoli",
-      "Champawat",
-      "Dehradun",
-      "Haridwar",
-      "Nainital",
-      "Pauri Garhwal",
-      "Pithoragarh",
-      "Rudraprayag",
-      "Tehri Garhwal",
-      "Udham Singh Nagar",
-      "Uttarkashi",
-    ],
+  "uttar-pradesh": [
+    "Agra",
+    "Aligarh",
+    "Amroha",
+    "Auraiya",
+    "Ayodhya",
+    "Azamgarh",
+    "Baghpat",
+    "Bahraich",
+    "Ballia",
+    "Balrampur",
+    "Banda",
+    "Barabanki",
+    "Bareilly",
+    "Basti",
+    "Bhadohi",
+    "Bijnor",
+    "Budaun",
+    "Bulandshahr",
+    "Chandauli",
+    "Chitrakoot",
+    "Deoria",
+    "Etah",
+    "Etawah",
+    "Farrukhabad",
+    "Fatehpur",
+    "Firozabad",
+    "Gautam Buddha Nagar",
+    "Ghaziabad",
+    "Ghazipur",
+    "Gonda",
+    "Gorakhpur",
+    "Hamirpur",
+    "Hapur",
+    "Hardoi",
+    "Hathras",
+    "Jalaun",
+    "Jaunpur",
+    "Jhansi",
+    "Kannauj",
+    "Kanpur Dehat",
+    "Kanpur Nagar",
+    "Kasganj",
+    "Kaushambi",
+    "Kushinagar",
+    "Lakhimpur Kheri",
+    "Lalitpur",
+    "Lucknow",
+    "Maharajganj",
+    "Mahoba",
+    "Mainpuri",
+    "Mathura",
+    "Mau",
+    "Meerut",
+    "Mirzapur",
+    "Moradabad",
+    "Muzaffarnagar",
+    "Pilibhit",
+    "Pratapgarh",
+    "Prayagraj",
+    "Raebareli",
+    "Rampur",
+    "Saharanpur",
+    "Sambhal",
+    "Sant Kabir Nagar",
+    "Shahjahanpur",
+    "Shamli",
+    "Shravasti",
+    "Siddharthnagar",
+    "Sitapur",
+    "Sonbhadra",
+    "Sultanpur",
+    "Unnao",
+    "Varanasi",
+  ],
+  uttarakhand: [
+    "Almora",
+    "Bageshwar",
+    "Chamoli",
+    "Champawat",
+    "Dehradun",
+    "Haridwar",
+    "Nainital",
+    "Pauri Garhwal",
+    "Pithoragarh",
+    "Rudraprayag",
+    "Tehri Garhwal",
+    "Udham Singh Nagar",
+    "Uttarkashi",
+  ],
 };
