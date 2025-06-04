@@ -15,18 +15,11 @@ class GoogleSheetsService:
         self.client = None
         self.spreadsheet = None
         self.worksheet = None
-        self._connection_attempted = False  # Add a flag to prevent infinite retries
-
-    def _ensure_connected(self):
-        """Ensure the service is connected to Google Sheets"""
-        if not self.client or not self.spreadsheet or not self.worksheet:
-            if not self._connection_attempted:  # Only attempt connection once
-                self._connect()
+        self._connect()
 
     def _connect(self):
         """Connect to Google Sheets Client"""
-        self._connection_attempted = True  # Set the flag to prevent multiple attempts
-        
+
         try:
             scopes = current_app.config['SCOPES']  
             credentials_base64 = current_app.config['GOOGLE_SHEETS_CREDENTIALS_BASE64']
@@ -59,7 +52,6 @@ class GoogleSheetsService:
 
         except Exception as e:
             logger.error(f"Failed to connect to Google Sheets: {e}")
-            # Do not raise an exception to avoid recursion
             self.client = None
             self.spreadsheet = None
             self.worksheet = None
@@ -67,9 +59,6 @@ class GoogleSheetsService:
     def add_lead(self, lead: Lead) -> bool:
         """Add a lead to Google Sheets"""
         try:
-            # Ensure we are connected to Google Sheets
-            self._ensure_connected()
-
             if not self.client or not self.worksheet:
                 logger.error("Google Sheets not connected")
                 return False
