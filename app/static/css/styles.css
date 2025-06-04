@@ -85,6 +85,26 @@ body {
   background: #f8f9fa;
 }
 
+.select-wrapper {
+  position: relative;
+  display: block; /* or inline-block if preferred */
+}
+
+.select-wrapper::after {
+  content: ""; /* Or use an SVG arrow like '▼' */
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #667eea; 
+  pointer-events: none;
+  transition: border-color 0.3s ease;
+}
+
 .form-group input:focus,
 .form-group select:focus {
   outline: none;

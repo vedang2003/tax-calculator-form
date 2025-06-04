@@ -2,28 +2,6 @@
 
 A Flask-based web application that collects user information and automatically sends a tax calculator spreadsheet via email while storing leads in Google Sheets.
 
-## Project Structure
-
-```
-tax-calculator-app/
-├── app.py                  # Main Flask application
-├── requirements.txt        # Python dependencies
-├── .env                   # Environment variables (not in repo)
-├── .gitignore            # Git ignore rules
-├── credentials.json      # Google Service Account credentials (not in repo)
-├── tax_calculator.xlsx   # Excel file sent to users
-├── README.md            # Project documentation
-├── static/
-│   ├── css/
-│   │   └── styles.css   # Application styles
-│   ├── js/
-│   │   └── script.js    # Frontend JavaScript
-│   └── images/
-│       └── favicon.png  # Site favicon
-└── templates/
-    └── index.html       # Main HTML template
-```
-
 ## Installation & Setup
 
 ### 1. Clone the Repository
@@ -60,7 +38,7 @@ GOOGLE_SHEETS_ID=your-google-sheets-id
 2. Create a new project or select existing one
 3. Enable Google Sheets API and Google Drive API
 4. Create a Service Account and download the JSON credentials
-5. Rename the file to `credentials.json` and place in project root
+5. Encode the JSON file to base64 and define it in your `.env` file 
 6. Share your Google Sheet with the service account email
 
 ### 5. Gmail App Password Setup
@@ -78,7 +56,7 @@ Place your Excel tax calculator file as `tax_calculator.xlsx` in the project roo
 
 To run the application locally, execute the following command:
 ```bash
-python3 app.py
+python3 wsgi.py
 ```
 
 The application will be available at `http://localhost:5500`
@@ -87,6 +65,6 @@ The application will be available at `http://localhost:5500`
 
 For production deployment, consider using:
 
-- **Gunicorn**: `gunicorn -w 4 -b 0.0.0.0:5000 app:app`
+- **Gunicorn**: `gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app`
 - **Docker**: Create a Dockerfile for containerization
 - **Cloud Platforms**: Deploy to Heroku, Railway, or DigitalOcean

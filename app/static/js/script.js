@@ -89,7 +89,9 @@ class TaxCalculatorForm {
         this.showSuccess();
         this.resetForm();
       } else {
-        throw new Error(`Server error: ${response.status}`);
+        const serverErrorMessage = result.error || `Server error: ${response.status}`;
+        console.error("Server error:", serverErrorMessage);
+        this.showError(serverErrorMessage);
       }
     } catch (error) {
       console.error("Form submission error:", error);
@@ -101,15 +103,13 @@ class TaxCalculatorForm {
   }
 
   async submitForm(formData) {
-    // Debug: Log form data before sending
-    console.log("Sending form data:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
+    const csrfToken = this.form.querySelector('input[name="csrf_token"]').value;
     try {
       const response = await fetch("/submit", {
         method: "POST",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        },
         body: formData,
       });
 
@@ -226,8 +226,9 @@ class TaxCalculatorForm {
     this.successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  showError() {
+  showError(message = "An error occurred. Please try again later.") {
     this.hideMessages();
+    this.errorMsg.textContent = message;
     this.errorMsg.style.display = "block";
     this.errorMsg.scrollIntoView({ behavior: "smooth", block: "center" });
   }

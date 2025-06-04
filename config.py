@@ -6,12 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    """Base configuration"""
-    SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_hex(32))
+    """Base configuration"""   
+    SECRET_KEY = secrets.token_hex(16)  # Generate a secure random secret key
     
     # Google Sheets Configuration
     GOOGLE_SHEETS_ID = os.getenv('GOOGLE_SHEETS_ID')  
-    CREDENTIALS_FILE = 'credentials.json'  
+    GOOGLE_SHEETS_CREDENTIALS_BASE64 = os.getenv('GOOGLE_SHEETS_CREDENTIALS_BASE64')
     SCOPES = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
