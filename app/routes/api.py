@@ -12,9 +12,6 @@ logger = logging.getLogger(__name__)
 @api_bp.route('/submit', methods=['POST'])
 def submit_form():
     """Handle form submission"""
-    # Initialize services
-    sheets_service = GoogleSheetsService()
-    email_service = EmailService()
 
     # Rate limiting
     client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
@@ -25,7 +22,6 @@ def submit_form():
     try:
          # Debug: Log the raw form data
         logger.info(f"Raw form data: {dict(request.form)}")
-        logger.info(f"Request content type: {request.content_type}")
         
         # Create lead from form data
         form_data = {
@@ -41,23 +37,31 @@ def submit_form():
         
         lead = Lead.from_form_data(form_data)
         
-        # Debug: Log the lead object
-        logger.info(f"Lead object: {lead.to_dict()}")
-        
         # Validate required fields
         if not lead.full_name or not lead.email:
             logger.error(f"Missing required fields - Name: {lead.full_name}, Email: {lead.email}")
             return jsonify({'error': 'Name and email are required'}), 400
         
-        # Process lead
-        sheets_success = sheets_service.add_lead(lead)
-        email_success = email_service.send_tax_calculator(lead)
+        # Initialize services with error handling
+        try:
+            sheets_service = GoogleSheetsService()
+            sheets_success = sheets_service.add_lead(lead)
+        except Exception as e:
+            logger.error(f"Sheets service failed: {e}")
+            sheets_success = False
+        
+        try:
+            email_service = EmailService()
+            email_success = email_service.send_tax_calculator(lead)
+        except Exception as e:
+            logger.error(f"Email service failed: {e}")
+            email_success = False
         
         if sheets_success and email_success:
-            logger.info(f"Successfully processed lead: {lead.email}")
+            logger.info(f"Successfully processed lead: {lead.full_name}")
             return jsonify({'message': 'Success'}), 200
         else:
-            logger.error(f"Partial failure processing lead: {lead.email}")
+            logger.error(f"Partial failure processing lead: {lead.full_name}")
             return jsonify({'error': 'Service temporarily unavailable'}), 500
             
     except Exception as e:

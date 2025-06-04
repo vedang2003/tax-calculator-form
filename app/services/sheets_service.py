@@ -15,8 +15,12 @@ class GoogleSheetsService:
         self.client = None
         self.spreadsheet = None
         self.worksheet = None
-        self._connect()
-    
+
+    def _ensure_connected(self):
+        """Ensure the service is connected to Google Sheets"""
+        if not self.client or not self.spreadsheet or not self.worksheet:
+            self._connect()
+
     def _connect(self):
         """Connect to Google Sheets Client"""
         try:
@@ -43,11 +47,17 @@ class GoogleSheetsService:
 
         except Exception as e:
             logger.error(f"Failed to connect to Google Sheets: {e}")
+            self.client = None
+            self.spreadsheet = None
+            self.worksheet = None
             raise
     
     def add_lead(self, lead: Lead) -> bool:
         """Add a lead to Google Sheets"""
         try:
+            # Ensure we are connected to Google Sheets
+            self._ensure_connected()
+
             if not self.client or not self.worksheet:
                 logger.error("Google Sheets not connected")
                 return False

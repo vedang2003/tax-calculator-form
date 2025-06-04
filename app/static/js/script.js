@@ -103,14 +103,10 @@ class TaxCalculatorForm {
   }
 
   async submitForm(formData) {
-    const csrfToken = this.form.querySelector('input[name="csrf_token"]').value;
     try {
       const response = await fetch("/submit", {
         method: "POST",
-        headers: {
-          "X-CSRF-Token": csrfToken
-        },
-        body: formData,
+        body: formData
       });
 
       console.log("Response status:", response.status);

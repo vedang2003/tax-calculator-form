@@ -2,7 +2,6 @@ import logging
 import os
 from flask import Flask
 from config import config
-from app.extensions import csrf
 
 def create_app(config_name='default'):
     """Application factory pattern"""
@@ -16,11 +15,8 @@ def create_app(config_name='default'):
     # Load configuration
     app.config.from_object(config[config_name])
 
-    # Initialize CSRF protection
-    csrf.init_app(app)
-    
     # Configure logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(message)s')
     
     # Register blueprints
     from app.routes.main import main_bp

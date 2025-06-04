@@ -7,8 +7,8 @@ load_dotenv()
 
 class Config:
     """Base configuration"""   
-    SECRET_KEY = secrets.token_hex(16)  # Generate a secure random secret key
-    
+    SECRET_KEY = os.getenv('SECRET_KEY',secrets.token_hex(16))   # Generate a secure random secret key
+
     # Google Sheets Configuration
     GOOGLE_SHEETS_ID = os.getenv('GOOGLE_SHEETS_ID')  
     GOOGLE_SHEETS_CREDENTIALS_BASE64 = os.getenv('GOOGLE_SHEETS_CREDENTIALS_BASE64')
