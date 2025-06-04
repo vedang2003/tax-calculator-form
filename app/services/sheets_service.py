@@ -15,26 +15,38 @@ class GoogleSheetsService:
         self.client = None
         self.spreadsheet = None
         self.worksheet = None
+        self._connection_attempted = False  # Add a flag to prevent infinite retries
 
     def _ensure_connected(self):
         """Ensure the service is connected to Google Sheets"""
         if not self.client or not self.spreadsheet or not self.worksheet:
-            self._connect()
+            if not self._connection_attempted:  # Only attempt connection once
+                self._connect()
 
     def _connect(self):
         """Connect to Google Sheets Client"""
+        self._connection_attempted = True  # Set the flag to prevent multiple attempts
+        
         try:
             scopes = current_app.config['SCOPES']  
             credentials_base64 = current_app.config['GOOGLE_SHEETS_CREDENTIALS_BASE64']
 
-            # Load credentials from JSON file
+            if not credentials_base64:
+                logger.error("GOOGLE_SHEETS_CREDENTIALS_BASE64 not found in config")
+                return
+
+            # Decode credentials
             try:
                 credentials_json = base64.b64decode(credentials_base64).decode('utf-8')
                 credentials_dict = json.loads(credentials_json)
             except json.JSONDecodeError as e:
                 logger.error(f"Invalid JSON format for Google Sheets credentials: {e}")
                 return
+            except Exception as e:
+                logger.error(f"Error decoding credentials: {e}")
+                return
 
+            # Create credentials and connect
             creds = Credentials.from_service_account_info(
                 credentials_dict,
                 scopes=scopes
@@ -47,10 +59,10 @@ class GoogleSheetsService:
 
         except Exception as e:
             logger.error(f"Failed to connect to Google Sheets: {e}")
+            # Do not raise an exception to avoid recursion
             self.client = None
             self.spreadsheet = None
             self.worksheet = None
-            raise
     
     def add_lead(self, lead: Lead) -> bool:
         """Add a lead to Google Sheets"""
