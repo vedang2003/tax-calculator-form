@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 import gspread
+import sys
 from google.oauth2.service_account import Credentials
 from flask import current_app
 from app.models.lead import Lead
@@ -21,6 +22,18 @@ class GoogleSheetsService:
         """Connect to Google Sheets Client"""
 
         try:
+            # Check if we're in an application context
+            if not current_app:
+                logger.error("No Flask application context available")
+                return
+            
+            # Add recursion depth check
+            if sys.getrecursionlimit() - len(sys._current_frames()) < 100:
+                logger.error("Approaching recursion limit in _connect()")
+                return
+                
+            logger.info("Starting _connect() method")
+            
             scopes = current_app.config['SCOPES']  
             credentials_base64 = current_app.config['GOOGLE_SHEETS_CREDENTIALS_BASE64']
 
