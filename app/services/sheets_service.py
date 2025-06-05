@@ -2,7 +2,6 @@ import base64
 import json
 import logging
 import gspread
-import time
 from google.oauth2.service_account import Credentials
 from flask import current_app
 from app.models.lead import Lead
@@ -54,23 +53,28 @@ class GoogleSheetsService:
             )
 
             logger.info("Authorizing Google Sheets client")
-            time.sleep(1)  
             self.client = gspread.authorize(creds)
-            if not self.client:
-                logger.error("Failed to authorize Google Sheets client")
-                return
             logger.info("Successfully authorized Google Sheets client")
 
-            time.sleep(1)
+            logger.info(f"Opening Google Sheets spreadsheet with ID: {current_app.config['GOOGLE_SHEETS_ID']}")
             self.spreadsheet = self.client.open_by_key(current_app.config['GOOGLE_SHEETS_ID'])
-            if not self.spreadsheet:
-                logger.error("Failed to open Google Sheets spreadsheet")
-                return
             logger.info(f"Connected to Google Sheets spreadsheet: {self.spreadsheet.title}")
 
             self.worksheet = self.spreadsheet.get_worksheet(0)
             logger.info("Successfully connected to Google Sheets")
 
+        except gspread.SpreadsheetNotFound as e:
+            logger.error(f"Spreadsheet not found: {e}")
+            self.client = None
+            self.spreadsheet = None
+            self.worksheet = None
+
+        except gspread.exceptions.APIError as e:
+            logger.error(f"Google Sheets API error: {e}")
+            self.client = None
+            self.spreadsheet = None
+            self.worksheet = None
+        
         except Exception as e:
             logger.error(f"Failed to connect to Google Sheets: {e}")
             self.client = None
