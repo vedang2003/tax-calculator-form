@@ -1,4 +1,5 @@
 import base64
+import sys
 import json
 import logging
 import gspread
@@ -21,15 +22,11 @@ class GoogleSheetsService:
         """Connect to Google Sheets Client"""
 
         try:
-            # Check if we're in an application context
-            if not current_app:
-                logger.error("No Flask application context available")
-                return
-                
             logger.info("Starting _connect() method")
             
             scopes = current_app.config['SCOPES']  
             credentials_base64 = current_app.config['GOOGLE_SHEETS_CREDENTIALS_BASE64']
+            sheet_id = current_app.config['GOOGLE_SHEETS_ID']
 
             if not credentials_base64:
                 logger.error("GOOGLE_SHEETS_CREDENTIALS_BASE64 not found in config")
@@ -53,33 +50,40 @@ class GoogleSheetsService:
             )
 
             logger.info("Authorizing Google Sheets client")
-            self.client = gspread.authorize(creds)
-            logger.info("Successfully authorized Google Sheets client")
+            
+            # Set recursion limit temporarily to catch infinite loops
+            original_recursion_limit = sys.getrecursionlimit()
+            sys.setrecursionlimit(100)  # Much lower limit to catch issues early
+            
+            try:
+                self.client = gspread.authorize(creds)
+                logger.info("Google Sheets client authorized successfully")
+                
+                # This is where the recursion often happens - add extra protection
+                self.spreadsheet = self.client.open_by_key(sheet_id)
+                logger.info(f"Spreadsheet opened: {self.spreadsheet.title}")
 
-            logger.info(f"Opening Google Sheets spreadsheet with ID: {current_app.config['GOOGLE_SHEETS_ID']}")
-            self.spreadsheet = self.client.open_by_key(current_app.config['GOOGLE_SHEETS_ID'])
-            logger.info(f"Connected to Google Sheets spreadsheet: {self.spreadsheet.title}")
+                self.worksheet = self.spreadsheet.get_worksheet(0)
+                logger.info(f"Worksheet obtained: {self.worksheet.title}")
+                
+                self._connection_successful = True
+                logger.info("Successfully connected to Google Sheets")
+                
+            finally:
+                # Restore original recursion limit
+                sys.setrecursionlimit(original_recursion_limit)
 
-            self.worksheet = self.spreadsheet.get_worksheet(0)
-            logger.info("Successfully connected to Google Sheets")
+        except RecursionError as e:
+            logger.error(f"Recursion error in Google Sheets connection: {e}")
 
         except gspread.SpreadsheetNotFound as e:
             logger.error(f"Spreadsheet not found: {e}")
-            self.client = None
-            self.spreadsheet = None
-            self.worksheet = None
 
         except gspread.exceptions.APIError as e:
             logger.error(f"Google Sheets API error: {e}")
-            self.client = None
-            self.spreadsheet = None
-            self.worksheet = None
         
         except Exception as e:
             logger.error(f"Failed to connect to Google Sheets: {e}")
-            self.client = None
-            self.spreadsheet = None
-            self.worksheet = None
     
     def add_lead(self, lead: Lead) -> bool:
         """Add a lead to Google Sheets"""
