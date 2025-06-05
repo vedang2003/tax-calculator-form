@@ -61,6 +61,7 @@ class GoogleSheetsService:
                 return
             logger.info("Successfully authorized Google Sheets client")
 
+            time.sleep(1)
             self.spreadsheet = self.client.open_by_key(current_app.config['GOOGLE_SHEETS_ID'])
             if not self.spreadsheet:
                 logger.error("Failed to open Google Sheets spreadsheet")
